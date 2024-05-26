@@ -42,7 +42,7 @@ The following is the result of training `MNIST` dataset with `Adam`, `LAMB` and 
 The red line is `Adam`, the blue line is `LAMB`, and the green line is `LAMB16`. `Adam` can't converge at this batch
 size, while `LAMB` and `LAMB16` can converge. `LAMB16` reaches the same loss as `LAMB` after 10 epochs.
 
-![LOSS](./images/loss.png)
+![LOSS](./images/LOSS.png)
 
 ## Reference
 
