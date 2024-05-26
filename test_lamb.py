@@ -11,7 +11,7 @@ import torch.nn.functional as F
 import tqdm
 from tensorboardX import SummaryWriter
 from torchvision import datasets, transforms
-from pytorch_lamb import Lamb, log_lamb_rs
+from pytorch_lamb import Lamb, Lamb16, log_lamb_rs
 
 
 class Net(nn.Module):
@@ -74,11 +74,11 @@ def main():
     parser = argparse.ArgumentParser(description='PyTorch MNIST Example')
     parser.add_argument('--batch-size', type=int, default=64, metavar='N',
                         help='input batch size for training (default: 64)')
-    parser.add_argument('--optimizer', type=str, default='lamb', choices=['lamb', 'adam'],
+    parser.add_argument('--optimizer', type=str, default='lamb16', choices=['lamb16', 'lamb', 'adam'],
                         help='which optimizer to use')
     parser.add_argument('--test-batch-size', type=int, default=1000, metavar='N',
                         help='input batch size for testing (default: 1000)')
-    parser.add_argument('--epochs', type=int, default=6, metavar='N',
+    parser.add_argument('--epochs', type=int, default=10, metavar='N',
                         help='number of epochs to train (default: 10)')
     parser.add_argument('--lr', type=float, default=0.0025, metavar='LR',
                         help='learning rate (default: 0.0025)')
@@ -113,7 +113,12 @@ def main():
 
 
     model = Net().to(device)
-    optimizer = Lamb(model.parameters(), lr=args.lr, weight_decay=args.wd, betas=(.9, .999), adam=(args.optimizer == 'adam'))
+    if args.optimizer == 'lamb16':
+        optimizer = Lamb16(model.parameters(), lr=args.lr, weight_decay=args.wd, betas=(.9, .999), adam=False)
+    if args.optimizer == 'lamb':
+        optimizer = Lamb(model.parameters(), lr=args.lr, weight_decay=args.wd, betas=(.9, .999), adam=False)
+    if args.optimizer == 'adam':
+        optimizer = Lamb(model.parameters(), lr=args.lr, weight_decay=args.wd, betas=(.9, .999), adam=True)
     writer = SummaryWriter()
     for epoch in range(1, args.epochs + 1):
         train(args, model, device, train_loader, optimizer, epoch, writer)
