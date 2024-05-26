@@ -1,8 +1,8 @@
 # LAMB16
 
 `LAMB16` is an optimizer proposed by Chunqing "Jyn" Shan, based on `LAMB`[1] optimizer.
-It is designed to enable training with `float8` optimizer state, which means
-much less memory size and bandwidth requirement. It converges faster than `Adam`
+It is designed to enable training with `float8` optimizer state, while still keeping `float32` precision for
+weight, which means much less memory size and bandwidth requirement. It converges faster than `Adam`
 but slower than `LAMB`, at the same hyperparameters.
 
 Consider it only requires 16bit for each parameter(hence the name `LAMB16`), which
