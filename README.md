@@ -5,7 +5,7 @@ It is designed to enable training with `float8` optimizer state, while still kee
 weight, which means much less memory size and bandwidth requirement. It converges faster than `Adam`
 but slower than `LAMB`, at the same hyperparameters.
 
-Consider it only requires 16bit for each parameter(hence the name `LAMB16`), which
+Because it only requires 16bit for each parameter(hence the name `LAMB16`), which
 means it requires `1/4` the memory size and bandwidth of `Adam` or `LAMB`, it should
 be faster when implemented with optimized kernels.
 
