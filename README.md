@@ -2,14 +2,18 @@
 
 `LAMB16` is an optimizer proposed by Chunqing "Jyn" Shan, based on `LAMB`[1] optimizer.
 It is designed to enable training with `float8` optimizer state, while still keeping `float32` precision for
-weight(and overall backpropagation precision is still `float32`), which means much less memory size
-and bandwidth requirement. It converges faster than `Adam` but slower than `LAMB`, at the same hyperparameters.
+weight(and backpropagation gradient precision is still `float32`, and the scale of state per layer is also `float32`),
+which means much less memory size and bandwidth requirement. It converges faster than `Adam` but slower than
+`LAMB`, at the same hyperparameters.
 
 Because it only requires 16bit for each parameter(hence the name `LAMB16`), which
 means it requires `1/4` the memory size and bandwidth of `Adam` or `LAMB`, it should
 be faster when implemented with optimized kernels.
 
 It also enables much larger batch size training, just like `LAMB` optimizer.
+
+It works transparently like an FP32 optimizer, with 1/4 memory footprint, and does not need to do AMP/change anything on
+ML workflow.
 
 ## Algorithm
 
