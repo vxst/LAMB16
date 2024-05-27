@@ -31,7 +31,8 @@ class Net(nn.Module):
         x = F.relu(self.fc1(x))
         x = self.fc2(x)
         return F.log_softmax(x, dim=1)
-    
+
+
 def train(args, model, device, train_loader, optimizer, epoch, event_writer):
     model.train()
     tqdm_bar = tqdm.tqdm(train_loader)
@@ -48,6 +49,7 @@ def train(args, model, device, train_loader, optimizer, epoch, event_writer):
             event_writer.add_scalar('loss', loss.item(), step)
             tqdm_bar.set_description(
                 f'Train epoch {epoch} Loss: {loss.item():.6f}')
+
 
 def test(args, model, device, test_loader, event_writer:SummaryWriter, epoch):
     model.eval()
@@ -88,7 +90,7 @@ def main():
                         help='random seed (default: 1)')
     parser.add_argument('--log-interval', type=int, default=10, metavar='N',
                         help='how many batches to wait before logging training status')
-    
+
     args = parser.parse_args()
     use_cuda = torch.cuda.is_available()
 
@@ -114,7 +116,7 @@ def main():
 
     model = Net().to(device)
     if args.optimizer == 'lamb16':
-        optimizer = Lamb16(model.parameters(), lr=args.lr, weight_decay=args.wd, betas=(.9, .999), adam=False)
+        optimizer = Lamb16(model.parameters(), lr=args.lr, weight_decay=args.wd, betas=(.9, .999))
     if args.optimizer == 'lamb':
         optimizer = Lamb(model.parameters(), lr=args.lr, weight_decay=args.wd, betas=(.9, .999), adam=False)
     if args.optimizer == 'adam':
