@@ -85,9 +85,9 @@ class Lamb16(Optimizer):
                 if len(state) == 0:
                     state['step'] = 0
                     # Exponential moving average of gradient values
-                    state['exp_avg'] = torch.zeros_like(p.data, dtype=torch.float8_e4m3fnuz)
+                    state['exp_avg'] = torch.zeros_like(p.data, dtype=torch.float8_e5m2)
                     # Exponential moving average of squared gradient values
-                    state['exp_avg_sq'] = torch.zeros_like(p.data, dtype=torch.float8_e4m3fnuz)
+                    state['exp_avg_sq'] = torch.zeros_like(p.data, dtype=torch.float8_e5m2)
                     state['exp_avg_norm'] = 1.0
                     state['exp_avg_sq_norm'] = 1.0
 
@@ -107,29 +107,36 @@ class Lamb16(Optimizer):
                 # v_t
                 exp_avg_sq.mul_(beta2).addcmul_(grad, grad, value=1 - beta2)
 
-                exp_avg_norm = exp_avg.pow(2).sum().sqrt()
-                exp_avg_sq_norm = exp_avg_sq.pow(2).sum().sqrt()
+                exp_avg_norm = exp_avg.abs().clip(0, 10).sum() / exp_avg.numel() + group['eps']
+                exp_avg_sq_norm = exp_avg_sq.abs().clip(0, 10).sum() / exp_avg_sq.numel() + group['eps']
                 state['exp_avg_norm'] = exp_avg_norm
                 state['exp_avg_sq_norm'] = exp_avg_sq_norm
-                state['exp_avg'] = (exp_avg / exp_avg_norm).to(torch.float8_e4m3fnuz, copy=True)
-                state['exp_avg_sq'] = (exp_avg_sq / exp_avg_sq_norm).to(torch.float8_e4m3fnuz, copy=True)
+                # if state['step'] % 100 == 0:
+                    # print(f"Max exp_avg: {exp_avg.max()}, min exp_avg: {exp_avg.min()}")
+                    # print(f"Max exp_avg_sq: {exp_avg_sq.max()}, min exp_avg_sq: {exp_avg_sq.min()}")
+                    # print(f"Norm exp_avg: {exp_avg_norm}, norm exp_avg_sq: {exp_avg_sq_norm}")
+                state['exp_avg'] = (exp_avg / exp_avg_norm).clip(-10, 10).to(torch.float8_e5m2, copy=True)
+                state['exp_avg_sq'] = (exp_avg_sq.clip(0, 10) / exp_avg_sq_norm).to(torch.float8_e5m2, copy=True)
 
                 step_size = group['lr']
 
-                weight_norm = p.data.pow(2).sum().sqrt().clamp(0, 10)
+                weight_norm = (p.data.pow(2).sum().sqrt() / p.data.numel()).clip(0, 10)
 
                 adam_step = exp_avg / exp_avg_sq.sqrt().add(group['eps'])
                 if group['weight_decay'] != 0:
                     adam_step.add_(p.data, alpha=group['weight_decay'])
 
-                adam_norm = adam_step.pow(2).sum().sqrt()
+                adam_norm = adam_step.pow(2).sum().sqrt() / adam_step.numel()
                 if weight_norm == 0 or adam_norm == 0:
                     trust_ratio = 1
                 else:
                     trust_ratio = weight_norm / adam_norm
+                trust_ratio = trust_ratio.clamp(0, 2)
                 state['weight_norm'] = weight_norm
                 state['adam_norm'] = adam_norm
                 state['trust_ratio'] = trust_ratio
+                # if state['step'] % 100 == 0:
+                    # print(f"Weight norm: {weight_norm}, Adam norm: {adam_norm}, trust ratio: {trust_ratio}")
 
                 p.data.add_(adam_step, alpha=-step_size * trust_ratio)
 
