@@ -49,6 +49,11 @@ size, while `LAMB` and `LAMB16` can converge. `LAMB16` reaches the same loss as 
 
 ![LOSS](./images/LOSS.png)
 
+Actually now it coverge as fast as normal LAMB, however I introduced some eps/clip to provide numeric stability to
+use float8_e5m2, it may introduced some bias. It is also possible to utilize the fact that the second moment estimate
+is always positive(of course), to introduce something like float8_e5m3, it can as simple as bfloat16, a bitmask applied to
+the IEEE float16(not bfloat16) can directly get the float8_e5m3.
+
 ## Reference
 
 1. LAMB: [Large Batch Optimization for Deep Learning: Training BERT in 76 minutes](https://arxiv.org/abs/1904.00962).
