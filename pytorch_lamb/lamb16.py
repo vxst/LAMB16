@@ -115,7 +115,7 @@ class Lamb16(Optimizer):
                     # print(f"Max exp_avg: {exp_avg.max()}, min exp_avg: {exp_avg.min()}")
                     # print(f"Max exp_avg_sq: {exp_avg_sq.max()}, min exp_avg_sq: {exp_avg_sq.min()}")
                     # print(f"Norm exp_avg: {exp_avg_norm}, norm exp_avg_sq: {exp_avg_sq_norm}")
-                state['exp_avg'] = (exp_avg / exp_avg_norm).clip(-50, 50).to(torch.float8_e4m3fn, copy=True)
+                state['exp_avg'] = (exp_avg / exp_avg_norm).clip(-15, 15).to(torch.float8_e4m3fn, copy=True)
                 state['exp_avg_sq'] = (exp_avg_sq.clip(0, 10) / exp_avg_sq_norm).to(torch.float8_e5m2, copy=True)
 
                 step_size = group['lr']
