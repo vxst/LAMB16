@@ -13,7 +13,8 @@ be faster when implemented with optimized kernels.
 It also enables much larger batch size training, just like `LAMB` optimizer.
 
 It works transparently like an FP32 optimizer, with 1/4 memory footprint, and does not need to do AMP/change anything on
-ML workflow.
+ML workflow. Since it still store per-element adaptive learning rate, it does not have the side effects like other
+memory aware optimizer(e.g. Adafactor).
 
 ## Algorithm
 
