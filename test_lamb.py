@@ -120,7 +120,7 @@ def main():
     if args.optimizer == 'lamb':
         optimizer = Lamb(model.parameters(), lr=args.lr, weight_decay=args.wd, betas=(.9, .999), adam=False)
     if args.optimizer == 'adam':
-        optimizer = Lamb(model.parameters(), lr=args.lr, weight_decay=args.wd, betas=(.9, .999), adam=True)
+        optimizer = torch.optim.Adam(model.parameters(), lr=args.lr, weight_decay=args.wd)
     writer = SummaryWriter()
     for epoch in range(1, args.epochs + 1):
         train(args, model, device, train_loader, optimizer, epoch, writer)

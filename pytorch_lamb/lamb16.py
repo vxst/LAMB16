@@ -143,8 +143,8 @@ class Lamb16(Optimizer):
                 state['weight_norm'] = weight_norm
                 state['adam_norm'] = adam_norm
                 state['trust_ratio'] = trust_ratio
-                if state['step'] % 100 == 0:
-                    print(f"Weight norm: {weight_norm}, Adam norm: {adam_norm}, trust ratio: {trust_ratio}")
+                # if state['step'] % 100 == 0:
+                    # print(f"Weight norm: {weight_norm}, Adam norm: {adam_norm}, trust ratio: {trust_ratio}")
 
                 p.data.add_(adam_step, alpha=-step_size * trust_ratio)
 
