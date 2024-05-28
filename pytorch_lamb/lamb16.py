@@ -26,7 +26,9 @@ class Lamb16(Optimizer):
 
     LAMB16 is based LAMB algorithm, which is in turn based on Adam.
     LAMB16 introduced 2 scalar states variables to enable store optimizer
-    states in 8bit float format.
+    states in 8bit float format. It also introduce a trust scale factor
+    to help stabilize the training process with huge learning rate compared
+    to batch size.
     
     This is a Proof of Concept implemention.
 
@@ -39,13 +41,16 @@ class Lamb16(Optimizer):
         eps (float, optional): term added to the denominator to improve
             numerical stability (default: 1e-8)
         weight_decay (float, optional): weight decay (L2 penalty) (default: 0)
+        trust_scale (float, optional): trust ratio scaling factor, the final
+            trust_ratio will be (weight_norm / adam_norm) ** trust_scale
+            (default: 0.618)
 
     .. Large Batch Optimization for Deep Learning: Training BERT in 76 minutes:
         https://arxiv.org/abs/1904.00962
     """
 
     def __init__(self, params, lr=1e-3, betas=(0.9, 0.999), eps=1e-6,
-                 weight_decay=0):
+                 weight_decay=0, trust_scale=0.382):
         if lr < 0.0:
             raise ValueError(f"Invalid learning rate: {lr}")
         if eps < 0.0:
@@ -58,7 +63,8 @@ class Lamb16(Optimizer):
             "lr": lr,
             "betas": betas,
             "eps": eps,
-            "weight_decay": weight_decay
+            "weight_decay": weight_decay,
+            "trust_scale": trust_scale,
         }
         super().__init__(params, defaults)
 
@@ -119,24 +125,26 @@ class Lamb16(Optimizer):
                 state['exp_avg_sq'] = (exp_avg_sq.clip(0, 10) / exp_avg_sq_norm).to(torch.float8_e5m2, copy=True)
 
                 step_size = group['lr']
+                # if state['step'] % 100 == 0:
+                    # print(f"Max Param: {p.data.max()}, Min Param: {p.data.min()}")
 
-                weight_norm = (p.data.pow(2).sum().sqrt() / p.data.numel()).clip(0, 10)
+                weight_norm = (p.data.pow(2).clip(group['eps'], 1.0).sum().sqrt() / p.data.numel())
 
                 adam_step = exp_avg / exp_avg_sq.sqrt().add(group['eps'])
                 if group['weight_decay'] != 0:
                     adam_step.add_(p.data, alpha=group['weight_decay'])
+                
+                # if state['step'] % 100 == 0:
+                    # print(f"Max Adam step: {adam_step.max()}, Min Adam step: {adam_step.min()}")
 
-                adam_norm = adam_step.pow(2).sum().sqrt() / adam_step.numel()
-                if weight_norm == 0 or adam_norm == 0:
-                    trust_ratio = 1
-                else:
-                    trust_ratio = weight_norm / adam_norm
-                trust_ratio = trust_ratio.clamp(0, 1)
+                adam_norm = (adam_step.pow(2).clip(group['eps'], 1.0).sum().sqrt() / adam_step.numel())
+                trust_ratio = (weight_norm / adam_norm / step_size * 1e-3).pow(group['trust_scale'])
+                trust_ratio = trust_ratio.clamp(0, 2)
                 state['weight_norm'] = weight_norm
                 state['adam_norm'] = adam_norm
                 state['trust_ratio'] = trust_ratio
-                # if state['step'] % 100 == 0:
-                    # print(f"Weight norm: {weight_norm}, Adam norm: {adam_norm}, trust ratio: {trust_ratio}")
+                if state['step'] % 100 == 0:
+                    print(f"Weight norm: {weight_norm}, Adam norm: {adam_norm}, trust ratio: {trust_ratio}")
 
                 p.data.add_(adam_step, alpha=-step_size * trust_ratio)
 
