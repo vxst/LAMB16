@@ -22,7 +22,7 @@ state. The normalized m and v are then calculated by dividing m and v by their r
 float8_e4m3fn and float8_e5m2 formats in the optimizer's state. This results in a total state size of 50% of the
 weight size, with 16 bits for each parameter (compared to 64 bits per parameter or 200% of the weight size for Adam or LAMB).
 
-LAMB16 enables training with half the memory requirement (including weight) and 1/4 the memory bandwidth overhead
+LAMB16 enables training with 1/4 the memory requirement(and 1/4 bandwidth overhead) for optimizer state
 compared to Adam or LAMB. It also allows for training with much larger batch sizes, a benefit inherited from the
 LAMB optimizer. With the same hyperparameters, LAMB16 converges faster than Adam and the original LAMB. Considering
 its significantly reduced memory bandwidth requirement, it should be much faster than both in practice.
