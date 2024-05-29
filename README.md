@@ -58,9 +58,13 @@ Compared to 4-bit and 8-bit AdamW, LAMB16 supports much larger batch sizes and c
 
 I was stupid and not aware of the existence of 4-bit/8-bit AdamW when developing LAMB16. They did some very interesting numerical analysis. Still, LAMB16 outperforms 4-bit/8-bit AdamW on large batch sizes due to LAMB16's per-layer adaptive trust ratio.
 
-I believe I can integrate 4-bit/8-bit AdamW’s analysis into LAMB16; perhaps there will be a LAMB8 one day.
+Another advantage of LAMB16 over low-bit AdamW[3] is that low-bit AdamW uses a dynamic exponent mapping quantize strategy,
+which involves mapping and de-mapping values to INT4/INT8. It needs a lot more memory bandwidth
+compared to LAMB16, which uses float8<->float32 convert that can be done per-element without the requirement of mapping/dict-building.
+
 
 ## Reference
 
 1. LAMB: [Large Batch Optimization for Deep Learning: Training BERT in 76 minutes](https://arxiv.org/abs/1904.00962).
 2. https://github.com/cybertronai/pytorch-lamb, the original LAMB optimizer implementation.
+3. https://arxiv.org/pdf/2309.01507
