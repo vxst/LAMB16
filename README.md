@@ -1,4 +1,4 @@
-# LAMB16
+![image](https://github.com/vxst/LAMB16/assets/4229916/f6433822-9ac6-4ae4-8d91-47bc675f46d5)# LAMB16
 
 LAMB16 is an optimizer proposed by Chunqing "Jyn" Shan, based on the LAMB[1] optimizer. It enables training with float8
 optimizer state while maintaining float32 precision for weights and backpropagation gradients. This significantly
@@ -13,6 +13,9 @@ in the kernel and keeping FP32 in L1/shared memory), it can be even faster.
 LAMB16 works transparently like an FP32 optimizer with a 1/4 memory footprint, without the need for AMP or changes
 to the ML workflow. It stores per-element adaptive learning rates, avoiding the side effects of other memory-aware
 optimizers (e.g., Adafactor). It also enables much larger batch size training, similar to the LAMB optimizer.
+
+Without data augmentation, using the original 60,000 MINST images, LAMB16 trains 2-layer naive CNN at 1024 batch size
+to 99.2% test accuracy in 10 epochs; at 128 batch size, 99.3% test accuracy in 5 epochs.
 
 ## Algorithm
 
