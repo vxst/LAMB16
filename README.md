@@ -33,7 +33,7 @@ its significantly reduced memory bandwidth requirement, it should be much faster
 ## Implementation
 
 This is a proof-of-concept implementation based on cybertronai's pytorch-lamb. I wrote a new Optimizer for LAMB16
-and reused the test_lamb.py(mian/CLI) and their implementation of original LAMB, so we can compare the
+and reused the test_lamb.py(CLI) and their implementation of original LAMB, so we can compare the
 performance of Adam, LAMB, and LAMB16.
 
 ## Results
