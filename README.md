@@ -54,11 +54,9 @@ The red line represents Adam, the green line represents LAMB, and the blue line 
 
 ## Compare
 
-Compared to 4-bit and 8-bit AdamW, LAMB16 supports much larger batch sizes and can converge with fewer epochs because of its full 32-bit gradient precision.
+I was stupid and not aware of the existence of 4-bit/8-bit AdamW when developing LAMB16. They did some very interesting numerical analysis. Still, LAMB16 outperforms 4-bit/8-bit AdamW on large batch sizes due to LAMB16's per-layer adaptive trust ratio and its better moment resolution.
 
-I was stupid and not aware of the existence of 4-bit/8-bit AdamW when developing LAMB16. They did some very interesting numerical analysis. Still, LAMB16 outperforms 4-bit/8-bit AdamW on large batch sizes due to LAMB16's per-layer adaptive trust ratio.
-
-Another advantage of LAMB16 over low-bit AdamW[3] is that low-bit AdamW uses a dynamic exponent mapping quantize strategy,
+Another advantage of LAMB16 over low-bit AdamW[3] is that 4-bit/8-bit AdamW uses a dynamic exponent mapping quantize strategy,
 which involves mapping and de-mapping values to INT4/INT8. It needs a lot more memory bandwidth
 compared to LAMB16, which uses float8<->float32 convert that can be done per-element without the requirement of mapping/dict-building.
 
