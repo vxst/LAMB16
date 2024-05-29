@@ -1,4 +1,4 @@
-![image](https://github.com/vxst/LAMB16/assets/4229916/f6433822-9ac6-4ae4-8d91-47bc675f46d5)# LAMB16
+# LAMB16
 
 LAMB16 is an optimizer proposed by Chunqing "Jyn" Shan, based on the LAMB[1] optimizer. It enables training with float8
 optimizer state while maintaining float32 precision for weights and backpropagation gradients. This significantly
