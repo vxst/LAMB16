@@ -49,6 +49,14 @@ dataset with a batch size of 128, a learning rate of 0.01, and a weight decay of
 
 The red line represents Adam, the green line represents LAMB, and the blue line represents LAMB16.
 
+## Compare
+
+Compared to 4-bit and 8-bit AdamW, LAMB16 supports much larger batch sizes and can converge with fewer epochs because of its full 32-bit gradient precision.
+
+I was stupid and not aware of the existence of 4-bit/8-bit AdamW when developing LAMB16. They did some very interesting numerical analysis. Still, LAMB16 outperforms 4-bit/8-bit AdamW on large batch sizes due to LAMB16's per-layer adaptive trust ratio.
+
+I believe I can integrate 4-bit/8-bit AdamW’s analysis into LAMB16; perhaps there will be a LAMB8 one day.
+
 ## Reference
 
 1. LAMB: [Large Batch Optimization for Deep Learning: Training BERT in 76 minutes](https://arxiv.org/abs/1904.00962).
